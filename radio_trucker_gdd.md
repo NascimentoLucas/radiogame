@@ -39,7 +39,7 @@ Every tip you rebroadcast earns **Likes**, and Likes extend your radio's reach. 
 
 - **Fuel cost is the same** whether or not the tip was rebroadcast. Rebroadcasting only shrinks the cargo, so a shared tip can turn a profitable trip into a bad one.
 - **Rebroadcast then go?** Allowed, but you arrive to a smaller load. The player must decide if the Likes are worth the reduced pay.
-- **Bad tips:** some signals are outdated, exaggerated, or scams. Rebroadcasting a bad tip loses Likes (reputation). Careful listening is a skill.
+- **Bad tips:** some signals are outdated, exaggerated, or scams. Each rebroadcast collects a pool of likes and unlikes from other drivers; the player gains `likes − unlikes` only when it is positive. A bad tip draws mostly unlikes, so it earns nothing, but a rebroadcast never takes Likes away. Careful listening is a skill.
 
 ## 5. Radio and Tuning
 
@@ -81,6 +81,7 @@ There is **no fail state**. Like Stardew Valley, a player who plays poorly simpl
 - **Licenses:** special cargo types (fragile, refrigerated, hazardous) that pay more.
 
 ### 6.2 Likes (from rebroadcasting)
+- A rebroadcast earns `likes − unlikes` from its reaction pool when that is positive, and nothing otherwise. The Likes total never goes down.
 - Increase the radio's base range, letting you hear farther signals and new regions.
 - Reputation: high Likes make other drivers more likely to share good tips with you.
 

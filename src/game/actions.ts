@@ -1,7 +1,7 @@
 import { advance } from './advance';
 import { BALANCE } from '@/gd';
 import { applyRebroadcastToJob, distanceKm, fuelForDistance, tripDurationMs } from './economy';
-import { ACTION_ERROR, TIP_STATUS, TIP_TRUTH, type ActionResult, type GameState, type Tip, type TipId, type World } from './types';
+import { ACTION_ERROR, TIP_STATUS, type ActionResult, type GameState, type Tip, type TipId, type World } from './types';
 
 export function createGame(world: World, now: number): GameState {
   return {
@@ -62,8 +62,9 @@ export function go(state: GameState, world: World, tipId: TipId, now: number): A
 }
 
 /**
- * REBROADCAST: share the tip. Cargo at the job drops sharply right away; Likes settle later
- * (gain for a good tip, loss for a bad one). The tip stays open, so you can still Go to a smaller load.
+ * REBROADCAST: share the tip. Cargo at the job drops sharply right away; the tip's pool of likes and
+ * unlikes settles later (mostly likes for a good tip, mostly unlikes for a bad one). The player only
+ * ever gains Likes from it. The tip stays open, so you can still Go to a smaller load.
  * Works while driving (it's a radio).
  */
 export function rebroadcast(state: GameState, tipId: TipId, now: number): ActionResult {
@@ -76,12 +77,12 @@ export function rebroadcast(state: GameState, tipId: TipId, now: number): Action
     const job = tip.jobId ? jobs[tip.jobId] : undefined;
     if (job) jobs[job.id] = applyRebroadcastToJob(job, t);
 
-    const delta = tip.truth === TIP_TRUTH.Good ? BALANCE.likesPerGoodRebroadcast : BALANCE.likesPerBadRebroadcast;
+    const { likes, unlikes } = BALANCE.rebroadcastReactions[tip.truth];
     const next = updateTip(s, tipId, { rebroadcastAt: t });
     return {
       ...next,
       jobs,
-      pendingLikes: [...s.pendingLikes, { tipId, delta, settlesAt: t + BALANCE.likesSettleDelayMs }],
+      pendingLikes: [...s.pendingLikes, { tipId, likes, unlikes, settlesAt: t + BALANCE.likesSettleDelayMs }],
     };
   });
 }

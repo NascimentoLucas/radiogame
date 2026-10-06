@@ -13,7 +13,12 @@ const SEEDS = [1, 2, 3, 4, 5];
 function average(strategy: StrategyName) {
   const runs = SEEDS.map((seed) => runSim({ world: WORLD, strategy: STRATEGIES[strategy], seed, tipCount: TIPS }));
   const avg = (f: (r: (typeof runs)[number]) => number) => runs.reduce((sum, r) => sum + f(r), 0) / runs.length;
-  return { netWorth: avg((r) => r.netWorth), likes: avg((r) => r.likes), payout: avg((r) => r.totalPayout) };
+  return {
+    netWorth: avg((r) => r.netWorth),
+    likes: avg((r) => r.likes),
+    likesPerRebroadcast: avg((r) => (r.rebroadcasts > 0 ? r.likes / r.rebroadcasts : 0)),
+    payout: avg((r) => r.totalPayout),
+  };
 }
 
 const startNetWorth = BALANCE.startMoney + BALANCE.startFuel * BALANCE.fuelPricePerLiter;
@@ -47,9 +52,10 @@ describe('paper prototype', () => {
     expect(results[STRATEGY.RebroadcastThenGo].netWorth).toBeLessThan(results[STRATEGY.GoAll].netWorth);
   });
 
-  it('careful listening beats blind play on both axes', () => {
-    expect(results[STRATEGY.Careful].netWorth).toBeGreaterThan(results[STRATEGY.GoAll].netWorth);
-    expect(results[STRATEGY.Careful].likes).toBeGreaterThan(results[STRATEGY.RebroadcastAll].likes);
+  it('careful listening beats blind play: more money, and more Likes per tip shared', () => {
+    const { Careful, GoAll, RebroadcastAll } = STRATEGY;
+    expect(results[Careful].netWorth).toBeGreaterThan(results[GoAll].netWorth);
+    expect(results[Careful].likesPerRebroadcast).toBeGreaterThan(results[RebroadcastAll].likesPerRebroadcast);
   });
 
   it('is deterministic', () => {

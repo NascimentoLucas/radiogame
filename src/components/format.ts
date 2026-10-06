@@ -39,6 +39,6 @@ export function describeEvent(event: GameEvent, world: World): string {
     case 'local-job-done':
       return `Local run done. Paid ${formatMoney(event.pay)}.`;
     case 'likes-settled':
-      return `Your rebroadcast settled: ${formatSigned(event.delta)} ${NAMES.likes}.`;
+      return `Your rebroadcast settled: ${event.likes} up, ${event.unlikes} down, ${formatSigned(event.gain)} ${NAMES.likes}.`;
   }
 }

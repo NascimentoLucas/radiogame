@@ -70,6 +70,7 @@ export interface SimResult {
   /** Money plus the value of fuel in the tank. */
   netWorth: number;
   trips: number;
+  rebroadcasts: number;
   localJobs: number;
   totalPayout: number;
 }
@@ -79,6 +80,7 @@ export function runSim({ world, strategy, seed, tipCount, startAt = 0, gapMs = 5
   let t = startAt;
   let state = createGame(world, t);
   let trips = 0;
+  let rebroadcasts = 0;
   let localJobs = 0;
   let totalPayout = 0;
 
@@ -96,7 +98,10 @@ export function runSim({ world, strategy, seed, tipCount, startAt = 0, gapMs = 5
 
     if (decision === DECISION.Rebroadcast || decision === DECISION.RebroadcastThenGo) {
       const r = rebroadcast(state, tip.id, t);
-      if (r.ok) state = r.state;
+      if (r.ok) {
+        state = r.state;
+        rebroadcasts++;
+      }
     }
 
     if (decision === DECISION.Go || decision === DECISION.RebroadcastThenGo) {
@@ -133,6 +138,7 @@ export function runSim({ world, strategy, seed, tipCount, startAt = 0, gapMs = 5
     likes: state.likes,
     netWorth: state.money + state.fuel * BALANCE.fuelPricePerLiter,
     trips,
+    rebroadcasts,
     localJobs,
     totalPayout,
   };

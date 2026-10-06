@@ -1,5 +1,5 @@
 import { go, ignore, rebroadcast, refuel, takeLocalJob } from './actions';
-import { advance } from './advance';
+import { advance, likesGain } from './advance';
 import { BALANCE } from '@/gd';
 import { cargoAt, fuelCost, tripDurationMs } from './economy';
 import { T0, TEST_WORLD, newGame, unwrap, withTip } from './test-fixtures';
@@ -122,29 +122,25 @@ describe('rebroadcast', () => {
     expect(arrival?.type === 'arrived' && arrival.payout).toBeLessThan(tripCost);
   });
 
-  it('settles Likes later: gain for a good tip', () => {
+  it('settles the tip likes pool later: a good tip gains likes - unlikes', () => {
     const { state, tipId } = withTip(newGame());
     const s = unwrap(rebroadcast(state, tipId, T0)).state;
     expect(s.likes).toBe(0);
     expect(advance(s, T0 + BALANCE.likesSettleDelayMs - 1).state.likes).toBe(0);
     const settled = advance(s, T0 + BALANCE.likesSettleDelayMs);
-    expect(settled.state.likes).toBe(BALANCE.likesPerGoodRebroadcast);
+    const { likes, unlikes } = BALANCE.rebroadcastReactions[TIP_TRUTH.Good];
+    expect(likes - unlikes).toBeGreaterThan(0);
+    expect(settled.state.likes).toBe(likes - unlikes);
     expect(settled.events).toEqual([
-      { type: 'likes-settled', tipId, delta: BALANCE.likesPerGoodRebroadcast, at: T0 + BALANCE.likesSettleDelayMs },
+      { type: 'likes-settled', tipId, likes, unlikes, gain: likes - unlikes, at: T0 + BALANCE.likesSettleDelayMs },
     ]);
   });
 
-  it.each([TIP_TRUTH.Outdated, TIP_TRUTH.Exaggerated, TIP_TRUTH.Scam])('loses Likes for a bad tip (%s)', (truth) => {
-    let s = { ...newGame(), likes: 20 };
-    const added = withTip(s, { truth });
-    s = unwrap(rebroadcast(added.state, added.tipId, T0)).state;
-    expect(advance(s, T0 + BALANCE.likesSettleDelayMs).state.likes).toBe(20 + BALANCE.likesPerBadRebroadcast);
-  });
-
-  it('never drops Likes below zero', () => {
-    const { state, tipId } = withTip(newGame(), { truth: TIP_TRUTH.Scam });
-    const s = unwrap(rebroadcast(state, tipId, T0)).state;
-    expect(advance(s, T0 + BALANCE.likesSettleDelayMs).state.likes).toBe(0);
+  it.each([TIP_TRUTH.Outdated, TIP_TRUTH.Exaggerated, TIP_TRUTH.Scam])('never loses Likes for a bad tip (%s)', (truth) => {
+    const added = withTip({ ...newGame(), likes: 20 }, { truth });
+    const s = unwrap(rebroadcast(added.state, added.tipId, T0)).state;
+    const { likes, unlikes } = BALANCE.rebroadcastReactions[truth];
+    expect(advance(s, T0 + BALANCE.likesSettleDelayMs).state.likes).toBe(20 + Math.max(0, likes - unlikes));
   });
 
   it('only once per tip, and not after committing to Go or Ignore', () => {
@@ -213,6 +209,14 @@ describe('no fail state', () => {
   it('local job needs no fuel', () => {
     const s = unwrap(takeLocalJob({ ...newGame(), fuel: 0 }, T0)).state;
     expect(s.fuel).toBe(0);
+  });
+});
+
+describe('likesGain', () => {
+  it('adds likes - unlikes when positive, and nothing otherwise', () => {
+    expect(likesGain({ likes: 7, unlikes: 2 })).toBe(5);
+    expect(likesGain({ likes: 3, unlikes: 3 })).toBe(0);
+    expect(likesGain({ likes: 1, unlikes: 9 })).toBe(0);
   });
 });
 

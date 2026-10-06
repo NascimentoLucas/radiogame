@@ -3,6 +3,7 @@
  * (cargo loss per rebroadcast, trip lengths, ...). Tweak freely; tests check relationships, not exact values,
  * except where noted.
  */
+import { TIP_TRUTH, type TipTruth } from '@/game/types';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -49,10 +50,16 @@ export const BALANCE = {
   tellChance: 0.6,
 
   // --- Likes ---
-  likesPerGoodRebroadcast: 5,
-  likesPerBadRebroadcast: -8,
-  /** Likes never drop below this, however many bad tips you rebroadcast. */
-  minLikes: 0,
+  /**
+   * Reactions a rebroadcast collects from other drivers, by the tip's hidden truth. The player gains
+   * likes - unlikes when that is positive, and nothing otherwise: a rebroadcast never costs Likes.
+   */
+  rebroadcastReactions: {
+    [TIP_TRUTH.Good]: { likes: 6, unlikes: 1 },
+    [TIP_TRUTH.Outdated]: { likes: 2, unlikes: 5 },
+    [TIP_TRUTH.Exaggerated]: { likes: 3, unlikes: 6 },
+    [TIP_TRUTH.Scam]: { likes: 1, unlikes: 9 },
+  } satisfies Record<TipTruth, { likes: number; unlikes: number }>,
   /** Delay before a rebroadcast's Likes settle, so the result doesn't instantly reveal the truth. */
   likesSettleDelayMs: 10 * MINUTE,
 

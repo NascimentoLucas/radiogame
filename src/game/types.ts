@@ -125,10 +125,14 @@ export type Trip =
       arriveAt: number;
     };
 
-/** Likes from a rebroadcast settle later, once other drivers have checked the tip out. */
+/**
+ * A rebroadcast's pool of reactions. It settles later, once other drivers have checked the tip out.
+ * The player gains `likes - unlikes` if that is positive; a rebroadcast never removes Likes.
+ */
 export interface PendingLikes {
   tipId: TipId;
-  delta: number;
+  likes: number;
+  unlikes: number;
   settlesAt: number;
 }
 
@@ -151,7 +155,7 @@ export interface GameState {
 export type GameEvent =
   | { type: 'arrived'; tipId: TipId; placeId: PlaceId; unitsLoaded: number; payout: number; at: number }
   | { type: 'local-job-done'; pay: number; at: number }
-  | { type: 'likes-settled'; tipId: TipId; delta: number; at: number };
+  | { type: 'likes-settled'; tipId: TipId; likes: number; unlikes: number; gain: number; at: number };
 
 export const ACTION_ERROR = {
   UnknownTip: 'unknown-tip',

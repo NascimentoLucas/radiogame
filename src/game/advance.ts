@@ -1,7 +1,5 @@
-import { BALANCE } from '@/gd';
-
 import { cargoAt, unitsLoadable } from './economy';
-import type { GameEvent, GameState } from './types';
+import type { GameEvent, GameState, PendingLikes } from './types';
 
 export interface AdvanceResult {
   state: GameState;
@@ -29,16 +27,25 @@ export function advance(state: GameState, now: number): AdvanceResult {
       events.push(r.event);
     } else {
       const due = s.pendingLikes.find((p) => p.settlesAt === likesAt)!;
-      s = {
-        ...s,
-        likes: Math.max(BALANCE.minLikes, s.likes + due.delta),
-        pendingLikes: s.pendingLikes.filter((p) => p !== due),
-      };
-      events.push({ type: 'likes-settled', tipId: due.tipId, delta: due.delta, at: due.settlesAt });
+      const gain = likesGain(due);
+      s = { ...s, likes: s.likes + gain, pendingLikes: s.pendingLikes.filter((p) => p !== due) };
+      events.push({
+        type: 'likes-settled',
+        tipId: due.tipId,
+        likes: due.likes,
+        unlikes: due.unlikes,
+        gain,
+        at: due.settlesAt,
+      });
     }
   }
 
   return { state: { ...s, lastUpdatedAt: target }, events };
+}
+
+/** A rebroadcast's net reactions count only when positive: sharing a tip never costs Likes. */
+export function likesGain({ likes, unlikes }: Pick<PendingLikes, 'likes' | 'unlikes'>): number {
+  return Math.max(0, likes - unlikes);
 }
 
 function resolveTrip(s: GameState): { state: GameState; event: GameEvent } {
