@@ -109,9 +109,16 @@ export interface TruckStats {
   litersPerKm: number;
 }
 
+export const TRIP_KIND = {
+  Tip: 'tip',
+  Local: 'local',
+} as const;
+
+export type TripKind = (typeof TRIP_KIND)[keyof typeof TRIP_KIND];
+
 export type Trip =
   | {
-      kind: 'tip';
+      kind: typeof TRIP_KIND.Tip;
       tipId: TipId;
       fromPlaceId: PlaceId;
       toPlaceId: PlaceId;
@@ -119,7 +126,7 @@ export type Trip =
       arriveAt: number;
     }
   | {
-      kind: 'local';
+      kind: typeof TRIP_KIND.Local;
       pay: number;
       departAt: number;
       arriveAt: number;
@@ -151,11 +158,19 @@ export interface GameState {
   lastUpdatedAt: number;
 }
 
+export const GAME_EVENT = {
+  Arrived: 'arrived',
+  LocalJobDone: 'local-job-done',
+  LikesSettled: 'likes-settled',
+} as const;
+
+export type GameEventType = (typeof GAME_EVENT)[keyof typeof GAME_EVENT];
+
 /** Things that happened during `advance()`. Used later for notifications and audio cues. */
 export type GameEvent =
-  | { type: 'arrived'; tipId: TipId; placeId: PlaceId; unitsLoaded: number; payout: number; at: number }
-  | { type: 'local-job-done'; pay: number; at: number }
-  | { type: 'likes-settled'; tipId: TipId; likes: number; unlikes: number; gain: number; at: number };
+  | { type: typeof GAME_EVENT.Arrived; tipId: TipId; placeId: PlaceId; unitsLoaded: number; payout: number; at: number }
+  | { type: typeof GAME_EVENT.LocalJobDone; pay: number; at: number }
+  | { type: typeof GAME_EVENT.LikesSettled; tipId: TipId; likes: number; unlikes: number; gain: number; at: number };
 
 export const ACTION_ERROR = {
   UnknownTip: 'unknown-tip',

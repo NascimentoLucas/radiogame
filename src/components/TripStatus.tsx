@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { getPlace, type GameState, type World } from '@/game';
+import { getPlace, TRIP_KIND, type GameState, type World } from '@/game';
 import { BALANCE } from '@/gd';
 
 import { ActionButton } from './ActionButton';
@@ -22,7 +22,7 @@ export function TripStatus({ game, world, now, onFillUp, onLocalJob }: Props) {
 
   if (trip) {
     const title =
-      trip.kind === 'tip' ? `Driving to ${getPlace(world, trip.toPlaceId).name}` : 'Local dispatcher run';
+      trip.kind === TRIP_KIND.Tip ? `Driving to ${getPlace(world, trip.toPlaceId).name}` : 'Local dispatcher run';
     const progress = Math.min(1, Math.max(0, (now - trip.departAt) / (trip.arriveAt - trip.departAt)));
     return (
       <View style={styles.panel}>

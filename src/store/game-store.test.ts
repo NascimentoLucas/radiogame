@@ -1,4 +1,4 @@
-import { ACTION_ERROR, TIP_STATUS } from '@/game';
+import { ACTION_ERROR, GAME_EVENT, TIP_STATUS, TRIP_KIND } from '@/game';
 import { BALANCE } from '@/gd';
 
 import { useGameStore } from './game-store';
@@ -41,11 +41,11 @@ test('go starts a trip and the arrival shows up in the log after time passes', (
   const tipId = store().game!.tips[0].id;
   store().go(tipId);
   expect(store().lastError).toBeNull();
-  expect(store().game!.trip?.kind).toBe('tip');
+  expect(store().game!.trip?.kind).toBe(TRIP_KIND.Tip);
 
   store().devSkip(24 * HOUR);
   expect(store().game!.trip).toBeNull();
-  expect(store().log[0]).toMatchObject({ type: 'arrived', tipId });
+  expect(store().log[0]).toMatchObject({ type: GAME_EVENT.Arrived, tipId });
 });
 
 test('ignore closes the tip', () => {
@@ -63,7 +63,7 @@ test('rebroadcast queues Likes that settle later', () => {
 
   store().devSkip(BALANCE.likesSettleDelayMs);
   expect(store().game!.pendingLikes).toHaveLength(0);
-  expect(store().log[0]).toMatchObject({ type: 'likes-settled', tipId });
+  expect(store().log[0]).toMatchObject({ type: GAME_EVENT.LikesSettled, tipId });
 });
 
 test('a failed action records the reason instead of throwing', () => {

@@ -1,5 +1,5 @@
 import { NAMES } from '@/content/names';
-import { getPlace, type GameEvent, type World } from '@/game';
+import { GAME_EVENT, getPlace, type GameEvent, type World } from '@/game';
 
 export function formatMoney(amount: number): string {
   const sign = amount < 0 ? '-' : '';
@@ -31,14 +31,14 @@ export function formatSigned(n: number): string {
 
 export function describeEvent(event: GameEvent, world: World): string {
   switch (event.type) {
-    case 'arrived': {
+    case GAME_EVENT.Arrived: {
       const place = getPlace(world, event.placeId).name;
       if (event.unitsLoaded === 0) return `Arrived at ${place}. Nothing to load.`;
       return `Arrived at ${place}. Loaded ${event.unitsLoaded} units, paid ${formatMoney(event.payout)}.`;
     }
-    case 'local-job-done':
+    case GAME_EVENT.LocalJobDone:
       return `Local run done. Paid ${formatMoney(event.pay)}.`;
-    case 'likes-settled':
+    case GAME_EVENT.LikesSettled:
       return `Your rebroadcast settled: ${event.likes} up, ${event.unlikes} down, ${formatSigned(event.gain)} ${NAMES.likes}.`;
   }
 }

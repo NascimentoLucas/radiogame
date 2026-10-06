@@ -1,5 +1,5 @@
 import { cargoAt, unitsLoadable } from './economy';
-import type { GameEvent, GameState, PendingLikes } from './types';
+import { GAME_EVENT, TRIP_KIND, type GameEvent, type GameState, type PendingLikes } from './types';
 
 export interface AdvanceResult {
   state: GameState;
@@ -30,7 +30,7 @@ export function advance(state: GameState, now: number): AdvanceResult {
       const gain = likesGain(due);
       s = { ...s, likes: s.likes + gain, pendingLikes: s.pendingLikes.filter((p) => p !== due) };
       events.push({
-        type: 'likes-settled',
+        type: GAME_EVENT.LikesSettled,
         tipId: due.tipId,
         likes: due.likes,
         unlikes: due.unlikes,
@@ -50,10 +50,10 @@ export function likesGain({ likes, unlikes }: Pick<PendingLikes, 'likes' | 'unli
 
 function resolveTrip(s: GameState): { state: GameState; event: GameEvent } {
   const trip = s.trip!;
-  if (trip.kind === 'local') {
+  if (trip.kind === TRIP_KIND.Local) {
     return {
       state: { ...s, trip: null, money: s.money + trip.pay },
-      event: { type: 'local-job-done', pay: trip.pay, at: trip.arriveAt },
+      event: { type: GAME_EVENT.LocalJobDone, pay: trip.pay, at: trip.arriveAt },
     };
   }
 
@@ -73,7 +73,7 @@ function resolveTrip(s: GameState): { state: GameState; event: GameEvent } {
   return {
     state: { ...s, trip: null, money: s.money + payout, locationId: trip.toPlaceId, jobs },
     event: {
-      type: 'arrived',
+      type: GAME_EVENT.Arrived,
       tipId: tip.id,
       placeId: trip.toPlaceId,
       unitsLoaded: units,

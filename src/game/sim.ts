@@ -8,7 +8,7 @@ import { BALANCE } from '@/gd';
 import { estimateTrip, type TripEstimate } from './economy';
 import { createRng } from './rng';
 import { generateTip } from './tips';
-import { ACTION_ERROR, type Broadcaster, type GameState, type Tip, type World } from './types';
+import { ACTION_ERROR, GAME_EVENT, type Broadcaster, type GameState, type Tip, type World } from './types';
 
 export const DECISION = {
   Go: 'go',
@@ -87,7 +87,7 @@ export function runSim({ world, strategy, seed, tipCount, startAt = 0, gapMs = 5
   const settle = (until: number) => {
     const r = advance(state, until);
     state = r.state;
-    for (const e of r.events) if (e.type === 'arrived') totalPayout += e.payout;
+    for (const e of r.events) if (e.type === GAME_EVENT.Arrived) totalPayout += e.payout;
   };
 
   for (let i = 0; i < tipCount; i++) {

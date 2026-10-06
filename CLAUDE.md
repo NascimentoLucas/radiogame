@@ -38,6 +38,7 @@ src/
   audio/        # react-native-audio-api graph: static noise, band filters, signal mix
   components/   # UI: Dial, SignalMeter, Dashboard, RouteMap, ...
   store/        # zustand stores; they call into game/ and persist state
+  notifications/ # expo-notifications scheduling (no-op `.web.ts` twin: web isn't supported)
   content/      # data: names and text for characters, places, cargo, phrases; numbers come from gd/
 ```
 
@@ -53,11 +54,12 @@ Rules:
 
 | File | What it holds |
 |---|---|
-| `types.ts` | All sim types plus their string constants (`TIP_TRUTH`, `TIP_STATUS`, `ACTION_ERROR`) |
+| `types.ts` | All sim types plus their string constants (`TIP_TRUTH`, `TIP_STATUS`, `TRIP_KIND`, `GAME_EVENT`, `ACTION_ERROR`) |
 | `economy.ts` | Distance, fuel, trip time, cargo decay (`cargoAt`), rebroadcast cut, `estimateTrip` (claim-only, safe for UI) |
 | `tips.ts` | `generateTip`: a `Broadcast` (the claim) plus a hidden `Job` (the reality). Scams have no job |
 | `actions.ts` | `createGame`, `go`, `rebroadcast`, `ignore`, `refuel`, `takeLocalJob`. Each one calls `advance` first and returns an `ActionResult` |
 | `advance.ts` | Catch-up to `now`: trip arrivals and delayed Likes, in time order. Returns `GameEvent`s (for notifications and audio cues later) |
+| `upcoming.ts` | `upcomingEvents`: what `advance` will resolve next (arrivals, Likes), with no outcomes. Drives notifications |
 | `sim.ts` | Paper-prototype strategy runner (`STRATEGY`, `DECISION`). `sim.test.ts` guards the dilemma under current balance |
 | `test-fixtures.ts` | `TEST_WORLD` (home and a place 100 km away), `withTip`, `unwrap` |
 
@@ -66,6 +68,8 @@ Design decisions already made (change them in the GDD first):
 - Rebroadcast Likes settle after `likesSettleDelayMs`, so the result doesn't reveal right away whether a tip was good.
 - You can't rebroadcast after committing to Go or Ignore. This blocks a "load the cargo, then share it" Likes exploit.
 - A trip is a single leg: you're paid on arrival at the tip's location, and the truck stays there.
+- Notifications fire for arrivals and local runs only, never for Likes settling, and their text never reveals an outcome (payout, cargo, reactions). Permission is asked the first time a trip starts, not on launch. They stay silent while the app is in the foreground.
+- Resume: returning to the foreground runs `sync()` right away (AppState) and clears delivered notifications.
 
 ## Domain glossary
 
@@ -90,13 +94,13 @@ Design decisions already made (change them in the GDD first):
 - Every game design number lives in `src/gd/`, never inline in logic, content or components. Global numbers go in `src/gd/balance.ts` (Likes, pay ranges, fuel, trip times, cargo decay). Per-entity numbers go in `src/gd/world.ts`, keyed by the content id (place coordinates, cargo base pay, broadcaster odds and pay). They are open questions in GDD §11.
 - When you resolve an open question from GDD §11, update the GDD too.
 - Use the `@/` import alias for `src/`.
-- No hardcoded string literals for enum-like values. Define an `as const` object (e.g. `TIP_TRUTH.Scam`) and build the type from it: `type X = (typeof X_CONST)[keyof typeof X_CONST]`. Discriminant tags on object unions (`Trip.kind`, `GameEvent.type`) stay as literals.
+- No hardcoded string literals for enum-like values. Define an `as const` object (e.g. `TIP_TRUTH.Scam`) and build the type from it: `type X = (typeof X_CONST)[keyof typeof X_CONST]`. This includes discriminant tags on object unions: `TRIP_KIND`, `GAME_EVENT` (declare the member as `type: typeof GAME_EVENT.Arrived`).
 
 ## Suggested build order (from GDD §12)
 
 1. ~~`src/game/`: tip model, Go/Rebroadcast/Ignore resolution, fuel and cargo economy, with tests. Optionally a CLI or test-driven "paper prototype" sim.~~ **Done.**
 2. ~~A minimal screen: list of tips, three buttons, money/Likes/fuel HUD.~~ **Done.** ("Scan the band" stands in for the dial; `__DEV__` buttons fast-forward time.)
-3. Real-time travel + catch-up on resume + local notifications.
+3. ~~Real-time travel + catch-up on resume + local notifications.~~ **Done.** (Notifications are mobile-only; web relies on audio cues from step 5.)
 4. The tuning dial + signal meter (SVG + gestures), and reception quality that hides message fields.
 5. The audio graph: static, band filters, crossfade into the signal.
 6. Radio limits (battery, antenna, bands, time of day), gear shop, progression.

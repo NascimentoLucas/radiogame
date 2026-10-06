@@ -4,6 +4,8 @@ import { useGameStore } from '@/store/game-store';
 
 import RadioScreen from '@/app/index';
 
+jest.mock('@/notifications/scheduler', () => jest.requireActual('@/notifications/scheduler.web'));
+
 beforeEach(() => {
   useGameStore.setState({ game: null, log: [], lastError: null, clockOffsetMs: 0 });
 });

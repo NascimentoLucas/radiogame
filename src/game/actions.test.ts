@@ -3,7 +3,7 @@ import { advance, likesGain } from './advance';
 import { BALANCE } from '@/gd';
 import { cargoAt, fuelCost, tripDurationMs } from './economy';
 import { T0, TEST_WORLD, newGame, unwrap, withTip } from './test-fixtures';
-import { ACTION_ERROR, TIP_STATUS, TIP_TRUTH } from './types';
+import { ACTION_ERROR, GAME_EVENT, TIP_STATUS, TIP_TRUTH, TRIP_KIND } from './types';
 
 const TRIP_MS = tripDurationMs(100);
 const TRIP_FUEL = 100 * BALANCE.startTruck.litersPerKm;
@@ -29,12 +29,12 @@ describe('go', () => {
     const departed = unwrap(go(state, TEST_WORLD, tipId, T0)).state;
     expect(departed.fuel).toBeCloseTo(BALANCE.startFuel - TRIP_FUEL);
     expect(departed.money).toBe(BALANCE.startMoney);
-    expect(departed.trip).toMatchObject({ kind: 'tip', arriveAt: T0 + TRIP_MS });
+    expect(departed.trip).toMatchObject({ kind: TRIP_KIND.Tip, arriveAt: T0 + TRIP_MS });
 
     const { state: arrived, events } = advance(departed, T0 + TRIP_MS);
     const units = Math.floor(20 * DECAY);
     expect(events).toEqual([
-      { type: 'arrived', tipId, placeId: 'far', unitsLoaded: units, payout: units * 10, at: T0 + TRIP_MS },
+      { type: GAME_EVENT.Arrived, tipId, placeId: 'far', unitsLoaded: units, payout: units * 10, at: T0 + TRIP_MS },
     ]);
     expect(arrived.money).toBe(BALANCE.startMoney + units * 10);
     expect(arrived.locationId).toBe('far');
@@ -59,7 +59,7 @@ describe('go', () => {
   it('pays nothing for a scam', () => {
     const { state, tipId } = withTip(newGame(), { truth: TIP_TRUTH.Scam });
     const arrived = advance(unwrap(go(state, TEST_WORLD, tipId, T0)).state, T0 + TRIP_MS);
-    expect(arrived.events[0]).toMatchObject({ type: 'arrived', unitsLoaded: 0, payout: 0 });
+    expect(arrived.events[0]).toMatchObject({ type: GAME_EVENT.Arrived, unitsLoaded: 0, payout: 0 });
     expect(arrived.state.fuel).toBeCloseTo(BALANCE.startFuel - TRIP_FUEL);
   });
 
@@ -117,9 +117,9 @@ describe('rebroadcast', () => {
     expect(Math.floor(20 * DECAY) * 5).toBeGreaterThan(tripCost);
     const sharedStart = unwrap(rebroadcast(state, tipId, T0)).state;
     const shared = advance(unwrap(go(sharedStart, TEST_WORLD, tipId, T0)).state, T0 + TRIP_MS);
-    const arrival = shared.events.find((e) => e.type === 'arrived');
-    expect(arrival).toMatchObject({ type: 'arrived' });
-    expect(arrival?.type === 'arrived' && arrival.payout).toBeLessThan(tripCost);
+    const arrival = shared.events.find((e) => e.type === GAME_EVENT.Arrived);
+    expect(arrival).toMatchObject({ type: GAME_EVENT.Arrived });
+    expect(arrival?.type === GAME_EVENT.Arrived && arrival.payout).toBeLessThan(tripCost);
   });
 
   it('settles the tip likes pool later: a good tip gains likes - unlikes', () => {
@@ -132,7 +132,7 @@ describe('rebroadcast', () => {
     expect(likes - unlikes).toBeGreaterThan(0);
     expect(settled.state.likes).toBe(likes - unlikes);
     expect(settled.events).toEqual([
-      { type: 'likes-settled', tipId, likes, unlikes, gain: likes - unlikes, at: T0 + BALANCE.likesSettleDelayMs },
+      { type: GAME_EVENT.LikesSettled, tipId, likes, unlikes, gain: likes - unlikes, at: T0 + BALANCE.likesSettleDelayMs },
     ]);
   });
 
@@ -200,7 +200,7 @@ describe('no fail state', () => {
     const working = unwrap(takeLocalJob(broke, T0)).state;
     const done = advance(working, T0 + BALANCE.localJobDurationMs);
     expect(done.events).toEqual([
-      { type: 'local-job-done', pay: BALANCE.localJobPay, at: T0 + BALANCE.localJobDurationMs },
+      { type: GAME_EVENT.LocalJobDone, pay: BALANCE.localJobPay, at: T0 + BALANCE.localJobDurationMs },
     ]);
     expect(done.state.money).toBe(BALANCE.localJobPay);
     expect(refuel(done.state, Infinity, T0 + BALANCE.localJobDurationMs).ok).toBe(true);
@@ -238,7 +238,7 @@ describe('advance', () => {
     const later = T0 + TRIP_MS + 60_000;
     const b = withTip(departed, { at: later });
     const r = unwrap(rebroadcast(b.state, b.tipId, later));
-    expect(r.events[0]).toMatchObject({ type: 'arrived', unitsLoaded: Math.floor(20 * DECAY) });
+    expect(r.events[0]).toMatchObject({ type: GAME_EVENT.Arrived, unitsLoaded: Math.floor(20 * DECAY) });
   });
 
   it('ignores clocks that run backwards', () => {

@@ -1,7 +1,7 @@
 import { advance } from './advance';
 import { BALANCE } from '@/gd';
 import { applyRebroadcastToJob, distanceKm, fuelForDistance, tripDurationMs } from './economy';
-import { ACTION_ERROR, TIP_STATUS, type ActionResult, type GameState, type Tip, type TipId, type World } from './types';
+import { ACTION_ERROR, TIP_STATUS, TRIP_KIND, type ActionResult, type GameState, type Tip, type TipId, type World } from './types';
 
 export function createGame(world: World, now: number): GameState {
   return {
@@ -50,7 +50,7 @@ export function go(state: GameState, world: World, tipId: TipId, now: number): A
       ...next,
       fuel: s.fuel - liters,
       trip: {
-        kind: 'tip',
+        kind: TRIP_KIND.Tip,
         tipId,
         fromPlaceId: s.locationId,
         toPlaceId: tip.broadcast.placeId,
@@ -117,7 +117,7 @@ export function takeLocalJob(state: GameState, now: number): ActionResult {
     if (s.trip) return { ok: false, reason: ACTION_ERROR.OnTrip };
     return {
       ...s,
-      trip: { kind: 'local', pay: BALANCE.localJobPay, departAt: t, arriveAt: t + BALANCE.localJobDurationMs },
+      trip: { kind: TRIP_KIND.Local, pay: BALANCE.localJobPay, departAt: t, arriveAt: t + BALANCE.localJobDurationMs },
     };
   });
 }
