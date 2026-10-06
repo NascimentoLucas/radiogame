@@ -95,7 +95,7 @@ Design decisions already made (change them in the GDD first):
 ## Suggested build order (from GDD §12)
 
 1. ~~`src/game/`: tip model, Go/Rebroadcast/Ignore resolution, fuel and cargo economy, with tests. Optionally a CLI or test-driven "paper prototype" sim.~~ **Done.**
-2. A minimal screen: list of tips, three buttons, money/Likes/fuel HUD.
+2. ~~A minimal screen: list of tips, three buttons, money/Likes/fuel HUD.~~ **Done.** ("Scan the band" stands in for the dial; `__DEV__` buttons fast-forward time.)
 3. Real-time travel + catch-up on resume + local notifications.
 4. The tuning dial + signal meter (SVG + gestures), and reception quality that hides message fields.
 5. The audio graph: static, band filters, crossfade into the signal.
