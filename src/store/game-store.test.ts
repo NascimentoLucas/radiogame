@@ -1,4 +1,5 @@
-import { ACTION_ERROR, BALANCE, TIP_STATUS } from '@/game';
+import { ACTION_ERROR, TIP_STATUS } from '@/game';
+import { BALANCE } from '@/gd';
 
 import { useGameStore } from './game-store';
 

@@ -1,6 +1,6 @@
 import { go, ignore, rebroadcast, refuel, takeLocalJob } from './actions';
 import { advance } from './advance';
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import { cargoAt, fuelCost, tripDurationMs } from './economy';
 import { T0, TEST_WORLD, newGame, unwrap, withTip } from './test-fixtures';
 import { ACTION_ERROR, TIP_STATUS, TIP_TRUTH } from './types';

@@ -1,51 +1,28 @@
+import { BROADCASTER_TUNING, CARGO_PAY, PLACE_COORDS } from '@/gd';
 import { TIP_TRUTH, type Broadcaster, type CargoKind, type Phrase, type Place, type World } from '@/game/types';
 
-/** Stylized fictional map (GDD §11: setting is open). Coordinates in km. */
+/** Stylized fictional map (GDD §11: setting is open). Coordinates live in src/gd/world.ts. */
 export const PLACES: Place[] = [
-  { id: 'truck-stop', name: 'Central Truck Stop', x: 0, y: 0 },
-  { id: 'mill-town', name: 'Mill Town', x: 40, y: 15 },
-  { id: 'river-port', name: 'River Port', x: -70, y: 30 },
-  { id: 'orchard-valley', name: 'Orchard Valley', x: 25, y: -90 },
-  { id: 'quarry', name: 'Old Quarry', x: 120, y: 60 },
-  { id: 'border-depot', name: 'Border Depot', x: -150, y: -110 },
+  { id: 'truck-stop', name: 'Central Truck Stop', ...PLACE_COORDS['truck-stop'] },
+  { id: 'mill-town', name: 'Mill Town', ...PLACE_COORDS['mill-town'] },
+  { id: 'river-port', name: 'River Port', ...PLACE_COORDS['river-port'] },
+  { id: 'orchard-valley', name: 'Orchard Valley', ...PLACE_COORDS['orchard-valley'] },
+  { id: 'quarry', name: 'Old Quarry', ...PLACE_COORDS.quarry },
+  { id: 'border-depot', name: 'Border Depot', ...PLACE_COORDS['border-depot'] },
 ];
 
 export const CARGO_KINDS: CargoKind[] = [
-  { id: 'general', name: 'General freight', basePayPerUnit: 8 },
-  { id: 'produce', name: 'Produce', basePayPerUnit: 10 },
-  { id: 'lumber', name: 'Lumber', basePayPerUnit: 12 },
+  { id: 'general', name: 'General freight', ...CARGO_PAY.general },
+  { id: 'produce', name: 'Produce', ...CARGO_PAY.produce },
+  { id: 'lumber', name: 'Lumber', ...CARGO_PAY.lumber },
 ];
 
-/** Character names are placeholders (GDD §7, §11). */
+/** Character names are placeholders (GDD §7, §11). Their odds and pay are in src/gd/world.ts. */
 export const BROADCASTERS: Broadcaster[] = [
-  {
-    id: 'dispatcher',
-    name: 'The Dispatcher',
-    perceivedReliability: 0.9,
-    truthWeights: { [TIP_TRUTH.Good]: 9, [TIP_TRUTH.Outdated]: 1, [TIP_TRUTH.Exaggerated]: 0, [TIP_TRUTH.Scam]: 0 },
-    payMultiplier: 0.8,
-  },
-  {
-    id: 'waitress',
-    name: 'The Truck Stop Waitress',
-    perceivedReliability: 0.75,
-    truthWeights: { [TIP_TRUTH.Good]: 6, [TIP_TRUTH.Outdated]: 3, [TIP_TRUTH.Exaggerated]: 1, [TIP_TRUTH.Scam]: 0 },
-    payMultiplier: 1,
-  },
-  {
-    id: 'rival',
-    name: 'The Rival Driver',
-    perceivedReliability: 0.5,
-    truthWeights: { [TIP_TRUTH.Good]: 4, [TIP_TRUTH.Outdated]: 2, [TIP_TRUTH.Exaggerated]: 4, [TIP_TRUTH.Scam]: 0 },
-    payMultiplier: 1.1,
-  },
-  {
-    id: 'scammer',
-    name: 'The Scammer',
-    perceivedReliability: 0.3,
-    truthWeights: { [TIP_TRUTH.Good]: 1, [TIP_TRUTH.Outdated]: 0, [TIP_TRUTH.Exaggerated]: 2, [TIP_TRUTH.Scam]: 7 },
-    payMultiplier: 1,
-  },
+  { id: 'dispatcher', name: 'The Dispatcher', ...BROADCASTER_TUNING.dispatcher },
+  { id: 'waitress', name: 'The Truck Stop Waitress', ...BROADCASTER_TUNING.waitress },
+  { id: 'rival', name: 'The Rival Driver', ...BROADCASTER_TUNING.rival },
+  { id: 'scammer', name: 'The Scammer', ...BROADCASTER_TUNING.scammer },
 ];
 
 export const PHRASES: Phrase[] = [

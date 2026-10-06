@@ -1,5 +1,5 @@
 /**
- * Every tuning number lives here. These are provisional answers to GDD §11 open questions
+ * Every global tuning number lives here (per-place, per-cargo and per-broadcaster numbers are in ./world.ts). These are provisional answers to GDD §11 open questions
  * (cargo loss per rebroadcast, trip lengths, ...). Tweak freely; tests check relationships, not exact values,
  * except where noted.
  */
@@ -51,6 +51,8 @@ export const BALANCE = {
   // --- Likes ---
   likesPerGoodRebroadcast: 5,
   likesPerBadRebroadcast: -8,
+  /** Likes never drop below this, however many bad tips you rebroadcast. */
+  minLikes: 0,
   /** Delay before a rebroadcast's Likes settle, so the result doesn't instantly reveal the truth. */
   likesSettleDelayMs: 10 * MINUTE,
 

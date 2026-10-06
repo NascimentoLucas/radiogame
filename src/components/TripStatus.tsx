@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BALANCE, getPlace, type GameState, type World } from '@/game';
+import { getPlace, type GameState, type World } from '@/game';
+import { BALANCE } from '@/gd';
 
 import { ActionButton } from './ActionButton';
 import { formatDuration, formatLiters, formatMoney } from './format';

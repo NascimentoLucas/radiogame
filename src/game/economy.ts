@@ -1,4 +1,4 @@
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import type { GameState, Job, Place, PlaceId, TipId, World } from './types';
 
 export function getPlace(world: World, id: PlaceId): Place {

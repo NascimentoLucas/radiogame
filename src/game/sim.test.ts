@@ -4,7 +4,7 @@
  */
 import { WORLD } from '@/content/world';
 
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import { runSim, STRATEGIES, STRATEGY, type StrategyName } from './sim';
 
 const TIPS = 300;

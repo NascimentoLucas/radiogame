@@ -1,7 +1,7 @@
 import { WORLD } from '@/content/world';
 
 import { createGame } from './actions';
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import { createRng } from './rng';
 import { generateTip } from './tips';
 import { TIP_TRUTH, type GameState, type TipTruth } from './types';

@@ -1,5 +1,5 @@
 import { advance } from './advance';
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import { applyRebroadcastToJob, distanceKm, fuelForDistance, tripDurationMs } from './economy';
 import { ACTION_ERROR, TIP_STATUS, TIP_TRUTH, type ActionResult, type GameState, type Tip, type TipId, type World } from './types';
 

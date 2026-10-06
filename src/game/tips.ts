@@ -1,4 +1,4 @@
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import type { Rng } from './rng';
 import { TIP_STATUS, TIP_TRUTH, type Broadcast, type GameState, type Job, type PhraseId, type Tip, type TipTruth, type World } from './types';
 

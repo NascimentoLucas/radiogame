@@ -1,4 +1,4 @@
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import {
   applyRebroadcastToJob,
   cargoAt,

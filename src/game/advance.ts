@@ -1,3 +1,5 @@
+import { BALANCE } from '@/gd';
+
 import { cargoAt, unitsLoadable } from './economy';
 import type { GameEvent, GameState } from './types';
 
@@ -29,7 +31,7 @@ export function advance(state: GameState, now: number): AdvanceResult {
       const due = s.pendingLikes.find((p) => p.settlesAt === likesAt)!;
       s = {
         ...s,
-        likes: Math.max(0, s.likes + due.delta),
+        likes: Math.max(BALANCE.minLikes, s.likes + due.delta),
         pendingLikes: s.pendingLikes.filter((p) => p !== due),
       };
       events.push({ type: 'likes-settled', tipId: due.tipId, delta: due.delta, at: due.settlesAt });

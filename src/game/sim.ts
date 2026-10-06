@@ -4,7 +4,7 @@
  */
 import { go, createGame, rebroadcast, refuel, takeLocalJob } from './actions';
 import { advance } from './advance';
-import { BALANCE } from './balance';
+import { BALANCE } from '@/gd';
 import { estimateTrip, type TripEstimate } from './economy';
 import { createRng } from './rng';
 import { generateTip } from './tips';

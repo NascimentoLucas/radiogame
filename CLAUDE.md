@@ -34,10 +34,11 @@ Install new packages with `npx expo install <pkg>`, never with plain `npm instal
 src/
   app/          # Expo Router screens only: thin, no game logic
   game/         # PURE TypeScript simulation: no React, no RN imports, no Date.now()
+  gd/           # game design numbers: every value that tunes play (Likes, pay, fuel, odds, map distances)
   audio/        # react-native-audio-api graph: static noise, band filters, signal mix
   components/   # UI: Dial, SignalMeter, Dashboard, RouteMap, ...
   store/        # zustand stores; they call into game/ and persist state
-  content/      # data: characters, broadcasters, tip templates, regions, gear catalog
+  content/      # data: names and text for characters, places, cargo, phrases; numbers come from gd/
 ```
 
 Rules:
@@ -53,7 +54,6 @@ Rules:
 | File | What it holds |
 |---|---|
 | `types.ts` | All sim types plus their string constants (`TIP_TRUTH`, `TIP_STATUS`, `ACTION_ERROR`) |
-| `balance.ts` | Every tuning number |
 | `economy.ts` | Distance, fuel, trip time, cargo decay (`cargoAt`), rebroadcast cut, `estimateTrip` (claim-only, safe for UI) |
 | `tips.ts` | `generateTip`: a `Broadcast` (the claim) plus a hidden `Job` (the reality). Scams have no job |
 | `actions.ts` | `createGame`, `go`, `rebroadcast`, `ignore`, `refuel`, `takeLocalJob`. Each one calls `advance` first and returns an `ActionResult` |
@@ -87,7 +87,7 @@ Design decisions already made (change them in the GDD first):
 
 - Before calling a task done, run `npm run typecheck`, `npm run lint`, and `npm test`. Run `npx expo-doctor` after you change dependencies.
 - Every rule in `src/game/` gets unit tests, especially the economy numbers (cargo loss per rebroadcast, fuel cost, Likes gain/loss).
-- Put tuning numbers in a single `src/game/balance.ts` so they can be tweaked without touching logic. They are open questions in GDD §11.
+- Every game design number lives in `src/gd/`, never inline in logic, content or components. Global numbers go in `src/gd/balance.ts` (Likes, pay ranges, fuel, trip times, cargo decay). Per-entity numbers go in `src/gd/world.ts`, keyed by the content id (place coordinates, cargo base pay, broadcaster odds and pay). They are open questions in GDD §11.
 - When you resolve an open question from GDD §11, update the GDD too.
 - Use the `@/` import alias for `src/`.
 - No hardcoded string literals for enum-like values. Define an `as const` object (e.g. `TIP_TRUTH.Scam`) and build the type from it: `type X = (typeof X_CONST)[keyof typeof X_CONST]`. Discriminant tags on object unions (`Trip.kind`, `GameEvent.type`) stay as literals.
