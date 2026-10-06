@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-audio-api/android/build.gradle b/node_modules/react-native-audio-api/android/build.gradle
+--- a/node_modules/react-native-audio-api/android/build.gradle
++++ b/node_modules/react-native-audio-api/android/build.gradle
+@@ -321,6 +321,8 @@ task downloadPrebuiltBinaries(type: Exec) {
+   def isWindows = Os.isFamily(Os.FAMILY_WINDOWS)
+   if (isWindows) {
+     commandLine 'C:\\Program Files\\Git\\usr\\bin\\bash.exe', '../scripts/download-prebuilt-binaries.sh', 'android', isFFmpegDisabled() ? 'skipffmpeg' : ''
++    // Non-login bash doesn't put Git's usr/bin (mkdir, rm, unzip) on PATH
++    environment 'PATH', 'C:\\Program Files\\Git\\usr\\bin;' + System.getenv('PATH')
+   } else {
+     commandLine 'chmod', '+x', '../scripts/download-prebuilt-binaries.sh'
+     commandLine 'bash', '../scripts/download-prebuilt-binaries.sh', 'android', isFFmpegDisabled() ? 'skipffmpeg' : ''
